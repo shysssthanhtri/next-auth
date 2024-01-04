@@ -1,7 +1,10 @@
 'use server';
 
+import { AuthError } from 'next-auth';
+
+import { signIn } from '@/auth';
+import { homeRoute } from '@/config/routes';
 import { LoginDto, TLoginDto } from '@/domain/dtos/login.dto';
-import { sleep } from '@/lib/utils';
 import { BaseResponse } from '@/shared/types/base-response.action';
 
 type LoginData = {
@@ -17,7 +20,27 @@ export const login = async (
       error: 'Invalid request dto',
     };
   }
-  console.log(dto);
-  await sleep(2);
-  return {};
+
+  const { email, password } = validatedDto.data;
+  try {
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirectTo: homeRoute,
+    });
+    console.log(result);
+    return {};
+  } catch (error) {
+    if (error instanceof AuthError) {
+      if (error.type === 'CredentialsSignin') {
+        return {
+          error: 'Invalid credentials',
+        };
+      }
+      return {
+        error: 'Something went wrong!',
+      };
+    }
+    throw error;
+  }
 };
