@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { login } from '@/actions/login.action';
 import { FormError } from '@/components/form-error';
 import { FormSuccess } from '@/components/form-success';
 import { CardWrapper } from '@/components/pages/auth/card-wrapper';
@@ -35,7 +36,8 @@ export const LoginForm = () => {
 
   const onSubmit = (values: TLoginDto) => {
     startTransition(async () => {
-      console.log(values);
+      const { error } = await login(values);
+      setError(error);
     });
   };
 
